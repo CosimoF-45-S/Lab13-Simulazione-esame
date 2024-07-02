@@ -28,7 +28,7 @@ class Controller:
     def handle_graph(self, e):
         year = self._view.ddyear.value
         shape = self._view.ddshape.value
-        self.graph = self._model.createGraph(shape, year)
+        self.graph = self._model.createGraph2(shape, year)
         self._view.txt_result.controls.clear()
         numero_nodi = self.graph.number_of_nodes()
         numero_archi = self.graph.number_of_edges()
@@ -37,6 +37,7 @@ class Controller:
             output = self._model.stampaPesoNodiAd(nodo)
             self._view.txt_result.controls.append(ft.Text(f"Nodo: {output[0]}, Peso archi adiacenti: {output[1]}"))
         self._view.update_page()
+
 
     def handle_path(self, e):
         result = self._model.handlepath()

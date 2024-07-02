@@ -69,3 +69,20 @@ class DAO():
         cnx.close()
         return -1
 
+    @staticmethod
+    def getEdges(shape, year, idMap):
+        cnx = DBConnect.get_connection()
+        cursor1 = cnx.cursor()
+        query1 = """select n.state1, n.state2, count(*) as peso  from neighbor n, sighting s1
+                    where  year(s1.`datetime`) = %s and (s1.state = n.state2 
+                    or s1.state = n.state1) and s1.shape = %s group by n.state1, n.state2"""
+        cursor1.execute(query1, (year, shape))
+        rows = cursor1.fetchall()
+        result = []
+        for row in rows:
+            result.append([idMap[row[0]], idMap[row[1]], row[2]])
+        cursor1.close()
+
+        cnx.close()
+        return result
+

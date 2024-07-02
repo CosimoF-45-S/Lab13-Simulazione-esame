@@ -7,6 +7,7 @@ import networkx as nx
 class Model:
     def __init__(self):
         self.graph = nx.Graph()
+        self.idMap = {}
 
     def getYears(self):
         years = DAO.DAO.getYears()
@@ -16,7 +17,7 @@ class Model:
         shapes = DAO.DAO.getShapes(year)
         return shapes
 
-    def createGraph(self, shape, year):
+    def createGraph1(self, shape, year):
 
         nodes = DAO.DAO.getStates()
         self.graph.add_nodes_from(nodes)
@@ -27,8 +28,20 @@ class Model:
             if edgeWeight != -1:
                 self.graph.add_edge(t[0], t[1], weight=edgeWeight)
 
+        return self.graph
+
+    def createGraph2(self, shape, year):
+        nodes = DAO.DAO.getStates()
+        for node in nodes:
+            self.idMap[node.id] = node
+        self.graph.add_nodes_from(nodes)
+
+        edges = DAO.DAO.getEdges(shape, year, self.idMap)
+        for edge in edges:
+            self.graph.add_edge(edge[0], edge[1], weight=edge[2])
 
         return self.graph
+
 
     def stampaPesoNodiAd(self, nodo):
         tot_weight = 0
@@ -42,15 +55,15 @@ class Model:
 
         for nodo in self.graph.nodes():
             last_node = nodo
-            self.recursive(last_node, [], 0)
+            self.recursive(last_node, [], 0, [last_node])
 
         printable_path = self.printablepath(self.bestpath)
 
         return self.maxdistance, printable_path
 
-    def recursive(self, last_node, partial, last_weight):
+    def recursive(self, last_node, partial, last_weight, visited):
 
-        archiammissibili = self.getArchiAmmissibili(last_node, last_weight, partial)
+        archiammissibili = self.getArchiAmmissibili(last_node, last_weight, visited)
 
         if not archiammissibili:
             distTot = self.calcolaDistTot(partial)
@@ -60,19 +73,18 @@ class Model:
         else:
             for edge in archiammissibili:
                 partial.append(edge)
-                self.recursive(edge[1], partial, edge[2]["weight"])
+                visited.append(edge[1])
+                self.recursive(edge[1], partial, edge[2]["weight"], visited)
                 partial.pop()
+                visited.pop()
 
 
 
-    def getArchiAmmissibili(self, last_node, last_weight, partial):
-        visitati = set()
-        for arco in partial:
-            visitati.add(arco[0])
-            visitati.add(arco[1])
+    def getArchiAmmissibili(self, last_node, last_weight, visited):
         output = []
-        for edge in self.graph.edges(last_node, data=True):
-            if edge[2]["weight"] >= last_weight and edge[1] not in visitati:
+        archivicini = self.graph.edges(last_node, data=True)
+        for edge in archivicini:
+            if edge[2]["weight"] > last_weight and edge[1] not in visited:
                 output.append(edge)
         return output
 
