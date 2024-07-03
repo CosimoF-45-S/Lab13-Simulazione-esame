@@ -30,15 +30,19 @@ class View(ft.UserControl):
         self._page.controls.append(self._title)
 
         #ROW with some controls
-        self.ddyear = ft.Dropdown(label="Anno", on_change=self._controller.fillDDShape)
-        self.ddshape = ft.Dropdown(label="Shape")
+        self.ddyear = ft.Dropdown(label="Anno", on_change=self._controller.fillAvvistamenti)
+        self.txt_name = ft.TextField(
+            label="avvistamenti",
+            width=200,
+        )
+
 
         self._controller.fillDD()
 
 
         # button for the "creat graph" reply
         self.btn_graph = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handle_graph)
-        row1 = ft.Row([self.ddyear,self.ddshape, self.btn_graph],
+        row1 = ft.Row([self.ddyear, self.btn_graph, self.txt_name],
                       alignment=ft.MainAxisAlignment.CENTER)
         self._page.controls.append(row1)
 
