@@ -17,33 +17,25 @@ class Controller:
         for year in years:
             self._view.ddyear.options.append(ft.dropdown.Option(year))
 
-    def fillDDShape(self, e):
+    def fillAvvistamenti(self, e):
         year = self._view.ddyear.value
-        shapes = self._model.getShapes(year)
-        for shape in shapes:
-            self._view.ddshape.options.append(ft.dropdown.Option(shape))
+        num_avv = self._model.getNumAvvistamenti(year)
+        self._view.txt_name.value = num_avv
         self._view.update_page()
 
-
     def handle_graph(self, e):
-        year = self._view.ddyear.value
-        shape = self._view.ddshape.value
-        self.graph = self._model.createGraph2(shape, year)
+        year = int(self._view.ddyear.value)
+        self.graph = self._model.createGraph(year)
         self._view.txt_result.controls.clear()
-        numero_nodi = self.graph.number_of_nodes()
-        numero_archi = self.graph.number_of_edges()
-        self._view.txt_result.controls.append(ft.Text(f"Numero di nodi: {numero_nodi}, Numero di archi: {numero_archi}"))
-        for nodo in self.graph.nodes:
-            output = self._model.stampaPesoNodiAd(nodo)
-            self._view.txt_result.controls.append(ft.Text(f"Nodo: {output[0]}, Peso archi adiacenti: {output[1]}"))
+        self._view.txt_result.controls.append(
+            ft.Text(f"Numero di nodi: {self.graph.number_of_nodes()}, Numero di archi: {self.graph.number_of_edges()}"))
         self._view.update_page()
 
 
     def handle_path(self, e):
-        result = self._model.handlepath()
-        self._view.txtOut2.controls.clear()
-        self._view.txtOut2.controls.append(ft.Text(f"Cammino di peso massimo: {result[0]}"))
-        for string in result[1]:
-            self._view.txtOut2.controls.append(ft.Text(string))
-        self._view.update_page()
+        pass
+
+
+
+
 
