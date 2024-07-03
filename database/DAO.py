@@ -6,42 +6,12 @@ from model import State
 class DAO():
 
     @staticmethod
-    def getYears():
-        cnx = DBConnect.get_connection()
-
-        cursor = cnx.cursor()
-        query = """ select distinct YEAR(`datetime`) from sighting s """
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        result = []
-        for row in rows:
-            result.append(row[0])
-        cursor.close()
-        cnx.close()
-        return result
-
-    @staticmethod
-    def getNumAvv(year):
-        cnx = DBConnect.get_connection()
-
-        cursor = cnx.cursor()
-        query = """ select count(*) from (select distinct s.id from sighting s
-                    where year(s.datetime) = %s) as sub  """
-        cursor.execute(query, (year, ))
-        row = cursor.fetchone()
-        cursor.close()
-        cnx.close()
-        return row[0]
-
-    @staticmethod
-    def getNodes(year):
+    def getStates():
         cnx = DBConnect.get_connection()
 
         cursor = cnx.cursor(dictionary=True)
-        query = """select  id, Name, Capital, Lat, Lng, Area, Population, Neighbors
-                    from state, (select distinct s.state from sighting s where year(s.`datetime`) = %s)
-                    sid where id = sid.state """
-        cursor.execute(query, (year, ))
+        query = """ select * from state s """
+        cursor.execute(query)
         rows = cursor.fetchall()
         result = []
         for row in rows:
@@ -51,18 +21,20 @@ class DAO():
         return result
 
     @staticmethod
-    def getEdges(year, idMap):
+    def getEdges(year, days, idMap):
         cnx = DBConnect.get_connection()
-
-        cursor = cnx.cursor()
-        query = """select distinct s1.state as st1, s2.state as st2 from sighting s1, sighting s2 where s2.state <> s1.state 
-                    and year(s1.`datetime`) = %s and year(s2.`datetime`) = %s and s2.`datetime` > s1.`datetime` """
-        cursor.execute(query, (year, year))
-        rows = cursor.fetchall()
+        cursor1 = cnx.cursor()
+        query1 = """select n.state1, n.state2, count(*) as peso  from neighbor n, sighting s1, sighting s2
+                    where  year(s1.`datetime`) = %s and year(s2.`datetime`) = %s and s2.state = n.state2 and n.state1 < n.state2 
+                    and s1.state = n.state1 and ABS(datediff(s1.`datetime`, s2.`datetime`)) <= %s group by n.state1, n.state2"""
+        cursor1.execute(query1, (year, year, days))
+        rows = cursor1.fetchall()
         result = []
         for row in rows:
-            result.append([idMap[row[0].upper()], idMap[row[1].upper()]])
-        cursor.close()
+            result.append((idMap[row[0]], idMap[row[1]], row[2]))
+        cursor1.close()
+
         cnx.close()
         return result
+
 

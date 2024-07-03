@@ -8,27 +8,31 @@ class Model:
         self.graph = nx.DiGraph()
         self.idMap = {}
 
-    def getYears(self):
-        years = DAO.DAO.getYears()
-        return years
+    def createGraph(self, year, days):
 
-    def getNumAvvistamenti(self, year):
-        numAvvistamenti = DAO.DAO.getNumAvv(year)
-        return numAvvistamenti
-
-    def createGraph(self, year):
-
-        nodi = DAO.DAO.getNodes(year)
+        nodi = DAO.DAO.getStates()
         self.graph.add_nodes_from(nodi)
 
         for nodo in nodi:
             self.idMap[nodo.id] = nodo
         print(self.idMap)
 
-        edges = DAO.DAO.getEdges(year, self.idMap)
-        self.graph.add_edges_from(edges)
+        edges = DAO.DAO.getEdges(year, days, self.idMap)
+        self.graph.add_weighted_edges_from(edges)
 
         return self.graph
+
+    def ad_tostr(self):
+        output = []
+        nodi = self.graph.nodes
+        for nodo in nodi:
+            peso = 0
+            adiac = self.graph.neighbors(nodo)
+            for a in adiac:
+                peso += self.graph[nodo][a]["weight"]
+            output.append(f"{nodo.id}: peso archi adiacenti: {peso}")
+        return output
+
 
 
 

@@ -30,23 +30,23 @@ class View(ft.UserControl):
         self._page.controls.append(self._title)
 
         #ROW with some controls
-        self.ddyear = ft.Dropdown(label="Anno", on_change=self._controller.fillAvvistamenti)
+        self.txt_year =ft.TextField(
+            label="year",
+            width=200,
+        )
         self.txt_name = ft.TextField(
-            label="avvistamenti",
+            label="Num. giorni",
             width=200,
         )
 
 
-        self._controller.fillDD()
-
 
         # button for the "creat graph" reply
         self.btn_graph = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handle_graph)
-        row1 = ft.Row([self.ddyear, self.btn_graph, self.txt_name],
+        row1 = ft.Row([self.txt_year, self.txt_name, self.btn_graph],
                       alignment=ft.MainAxisAlignment.CENTER)
         self._page.controls.append(row1)
 
-        self._controller.fillDD()
 
         # List View where the reply is printed
         self.txt_result = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
